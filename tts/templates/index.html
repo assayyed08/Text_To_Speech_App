@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    {% load static %}
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Read for Me App</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'styles.css' %}">
+</head>
+<body class="bg-light">
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary py-3">
+        <div class="container">
+            <a class="navbar-brand fw-bold text-center w-100" href="#">
+                Read for Me App
+                <small class="d-block text-light">Read Faster than Manual Speed, Read at Your Convenience</small>
+            </a>
+        </div>
+    </nav>
+
+    <!-- Modal for User Details -->
+    <div class="modal fade" id="userDetailsModal" tabindex="-1" aria-labelledby="userDetailsModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="userDetailsModalLabel">Enter Your Details</h5>
+                </div>
+                <div class="modal-body">
+                    <form id="userDetailsForm">
+                        <div class="mb-3">
+                            <label for="name" class="form-label">Name</label>
+                            <input type="text" class="form-control" id="name" placeholder="Enter your name" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="email" class="form-label">Email</label>
+                            <input type="email" class="form-control" id="email" placeholder="Enter your email" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="contact" class="form-label">Contact Number</label>
+                            <input type="text" class="form-control" id="contact" placeholder="Enter your contact number" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100">Submit</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Visitor Count -->
+    <div class="alert alert-info mt-3 text-center" id="visitorCount" role="alert">
+        Loading visitor count...
+    </div>
+
+    <!-- Main Content -->
+    <div class="container mt-4">
+        <!-- Feedback Message -->
+        <div id="feedback-message" class="alert d-none mb-4"></div>
+
+        <!-- Text Input and File Upload -->
+        <div class="row g-4">
+            <!-- Text Input Section -->
+            <div class="col-lg-8">
+                <div class="card shadow-sm">
+                    <div class="card-body">
+                        <h5 class="card-title">Enter Text or Upload a File</h5>
+                        <form id="textForm" enctype="multipart/form-data">
+                            <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
+                            <div class="mb-3">
+                                <label for="text-input" class="form-label">Enter Text or Extracted Content:</label>
+                                <textarea
+                                    id="text-input"
+                                    class="form-control"
+                                    rows="6"
+                                    placeholder="Type or paste text here... or upload a file to extract text."
+                                ></textarea>
+                            </div>
+                            <div class="mb-3">
+                                <label for="file-upload" class="form-label">Upload File:</label>
+                                <input
+                                    type="file"
+                                    class="form-control"
+                                    id="file-upload"
+                                    accept=".txt, .docx, .pdf"
+                                >
+                            </div>
+                            <div class="d-flex justify-content-end">
+                                <button type="button" id="submit-btn" class="btn btn-primary me-2">Submit</button>
+                                <button type="button" id="reset-btn" class="btn btn-secondary">Reset</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Instructions Section -->
+            <div class="col-lg-4">
+                <div class="card shadow-sm">
+                    <div class="card-body">
+                        <h5 class="card-title">Instructions</h5>
+                        <ul class="list-group list-group-flush">
+                            <li class="list-group-item">Enter text in the text box or upload a file (PDF, Word, or TXT).</li>
+                            <li class="list-group-item">Click <strong>Submit</strong> to process the text.</li>
+                            <li class="list-group-item">Use <strong>Start</strong>, <strong>Pause</strong>, and <strong>Stop</strong> for playback controls.</li>
+                            <li class="list-group-item">Adjust the speed using the slider and change voices dynamically.</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Control Panel -->
+        <div class="card shadow-sm mt-4">
+            <div class="card-body">
+                <h5 class="card-title">Control Panel</h5>
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label for="voice-select" class="form-label">Select Voice:</label>
+                        <select class="form-select" id="voice-select"></select>
+                    </div>
+                    <div class="col-md-6">
+                        <label for="speed-slider" class="form-label">Set Speed (50-300):</label>
+                        <div class="d-flex align-items-center">
+                            <input
+                                type="range"
+                                class="form-range"
+                                min="50"
+                                max="300"
+                                id="speed-slider"
+                                value="200"
+                            >
+                            <span id="speed-display" class="ms-3">200</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="d-flex justify-content-around mt-4">
+                    <button type="button" id="start-btn" class="btn btn-success w-25">Start</button>
+                    <button type="button" id="pause-btn" class="btn btn-warning w-25">Pause</button>
+                    <button type="button" id="stop-btn" class="btn btn-danger w-25">Stop</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Highlighted Text -->
+        <div class="card shadow-sm mt-4">
+            <div class="card-body">
+                <h5 class="card-title">Currently Reading</h5>
+                <div id="highlight-box" class="highlight-box">Text will appear here as it is read aloud.</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="text-center bg-primary text-white py-3 mt-5">
+        <p class="mb-0">Text-to-Speech Application | Built with Django & JavaScript</p>
+    </footer>
+
+    <script src="{% static 'app.js' %}" defer></script>
+</body>
+</html>
